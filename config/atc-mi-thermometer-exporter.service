@@ -1,0 +1,13 @@
+[Unit]
+Description=ATC_MiThermometer Exporter service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/atc-mi-thermometer-exporter --log-level debug
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
