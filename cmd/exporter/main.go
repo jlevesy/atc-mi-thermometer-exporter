@@ -11,10 +11,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/jlevesy/atc-mi-thermometer-exporter/ble"
 	"github.com/jlevesy/atc-mi-thermometer-exporter/exporter"
+	"github.com/jlevesy/atc-mi-thermometer-exporter/pkg/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rigado/ble"
+	"github.com/rigado/ble/linux"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
@@ -37,13 +39,14 @@ func run() int {
 
 	flag.StringVar(&logLevel, "log-level", "info", "Log Level")
 	flag.Var(&allowedDevices, "allow-device", "Allowed device mac address, can be repeated")
-	flag.DurationVar(&cleanPeriod, "clean-period", time.Minute, "Interval between 2 cleanups")
-	flag.DurationVar(&maxUnseen, "max-unseen", 5*time.Minute, "Maximum duration before a device is considered as inactive")
+	flag.DurationVar(&cleanPeriod, "clean-period", 10*time.Minute, "Interval between 2 cleanups")
+	flag.DurationVar(&maxUnseen, "max-unseen", time.Hour, "Maximum duration before a device is considered as inactive")
 	flag.StringVar(&listenAddress, "listen-address", ":9977", "HTTP Listen address")
 	flag.BoolVar(&printVersion, "version", false, "Print version an exit")
 	flag.Parse()
 
 	logger := zap.Must(newLogger(logLevel))
+	ble.SetLogger(log.NewBLELogger(logger))
 
 	if printVersion {
 		logger.Info("atc-pi-thermometer-exporter", zap.String("version", version))
@@ -62,7 +65,7 @@ func run() int {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	device, err := ble.NewDevice()
+	device, err := linux.NewDevice(ble.OptTransportHCISocket(0))
 	if err != nil {
 		logger.Error("Could not open the BLE device", zap.Error(err))
 		return 1

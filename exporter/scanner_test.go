@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-ble/ble"
+	"github.com/rigado/ble"
 	"github.com/jlevesy/atc-mi-thermometer-exporter/exporter"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"

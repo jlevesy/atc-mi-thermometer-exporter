@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/go-ble/ble"
+	"github.com/rigado/ble"
 	"go.uber.org/zap"
 )
 

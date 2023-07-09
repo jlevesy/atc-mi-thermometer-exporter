@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/go-ble/ble"
+	"github.com/rigado/ble"
 )
 
 type AllowAllDevices struct{}
