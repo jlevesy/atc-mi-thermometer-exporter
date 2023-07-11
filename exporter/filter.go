@@ -15,7 +15,7 @@ func MacAddressFilter(macs []string) AdvertisementFilter {
 	filter := make(macAddressFilter, len(macs))
 
 	for i, vv := range macs {
-		filter[i] = strings.ToLower(strings.ReplaceAll(vv, ":", ""))
+		filter[i] = strings.ToLower(vv)
 	}
 
 	return filter
