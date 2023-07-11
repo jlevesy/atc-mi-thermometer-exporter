@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rigado/ble"
 	"github.com/jlevesy/atc-mi-thermometer-exporter/exporter"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
+	"github.com/rigado/ble"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
@@ -23,11 +23,11 @@ func TestScanner(t *testing.T) {
 	}{
 		{
 			desc:   "reports reading to the registry",
-			filter: exporter.AllowAllDevices{},
+			filter: exporter.MacAddressFilter([]string{"aa:bb:cc:dd:ee:ff"}),
 			advertisements: []ble.Advertisement{
 				&stubAdvertisement{
 					localName: "bedroom",
-					addr:      ble.NewAddr("coucou"),
+					addr:      ble.NewAddr("aa:bb:cc:dd:ee:ff"),
 					serviceData: []ble.ServiceData{
 						{
 							UUID: exporter.EnvironmentalSensingUUID,
@@ -39,27 +39,27 @@ func TestScanner(t *testing.T) {
 			wantOutput: `
 				# HELP atc_mi_thermometer_battery_available_percent battery left on the device in %
                                 # TYPE atc_mi_thermometer_battery_available_percent gauge
-                                atc_mi_thermometer_battery_available_percent{device_address="coucou",device_name="bedroom"} 100
+                                atc_mi_thermometer_battery_available_percent{device_address="aa:bb:cc:dd:ee:ff",device_name="bedroom"} 100
                                 # HELP atc_mi_thermometer_battery_voltage_volts Voltage reported by the battery in volt
                                 # TYPE atc_mi_thermometer_battery_voltage_volts gauge
-                                atc_mi_thermometer_battery_voltage_volts{device_address="coucou",device_name="bedroom"} 3.1990000000000003
+                                atc_mi_thermometer_battery_voltage_volts{device_address="aa:bb:cc:dd:ee:ff",device_name="bedroom"} 3.1990000000000003
                                 # HELP atc_mi_thermometer_humidity_percent Humidity reported by the device in percent
                                 # TYPE atc_mi_thermometer_humidity_percent gauge
-                                atc_mi_thermometer_humidity_percent{device_address="coucou",device_name="bedroom"} 45.95
+                                atc_mi_thermometer_humidity_percent{device_address="aa:bb:cc:dd:ee:ff",device_name="bedroom"} 45.95
                                 # HELP atc_mi_thermometer_measurements_count Total measurements reported by the device
                                 # TYPE atc_mi_thermometer_measurements_count gauge
-                                atc_mi_thermometer_measurements_count{device_address="coucou",device_name="bedroom"} 36
+                                atc_mi_thermometer_measurements_count{device_address="aa:bb:cc:dd:ee:ff",device_name="bedroom"} 36
                                 # HELP atc_mi_thermometer_temperature_celsius_degrees Temperature reported by the device in celsius degrees
                                 # TYPE atc_mi_thermometer_temperature_celsius_degrees gauge
-                                atc_mi_thermometer_temperature_celsius_degrees{device_address="coucou",device_name="bedroom"} 27.87
+                                atc_mi_thermometer_temperature_celsius_degrees{device_address="aa:bb:cc:dd:ee:ff",device_name="bedroom"} 27.87
 				`,
 		},
 		{
 			desc:   "filters unwanted device",
-			filter: exporter.MacAddressFilter([]string{"NotAllowd"}),
+			filter: exporter.MacAddressFilter([]string{"aa:bb:cc:dd:ee:ff"}),
 			advertisements: []ble.Advertisement{
 				&stubAdvertisement{
-					addr: ble.NewAddr("coucou"),
+					addr: ble.NewAddr("aa:bb:cc:dd:ee:zz"),
 				},
 			},
 			wantOutput: "",
